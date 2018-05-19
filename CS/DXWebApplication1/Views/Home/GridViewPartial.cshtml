@@ -1,0 +1,26 @@
+@using DevExpress.Data.Filtering;
+@Html.DevExpress().GridView(settings => {
+    settings.Name = "gv";
+
+    settings.CallbackRouteValues = new { Controller = "Home", Action = "GridViewPartial" };
+    settings.CustomActionRouteValues = new { Controller = "Home", Action = "GridViewPartialCustom" };
+
+    settings.KeyFieldName = "ID";
+    settings.CommandColumn.Visible = true;
+    settings.CommandColumn.ShowSelectCheckbox = true;
+
+    settings.Columns.Add("ID");
+    settings.Columns.Add("Text");
+
+    settings.Settings.ShowFilterBar = GridViewStatusBarMode.Auto;
+    
+    settings.BeforeGetCallbackResult = (s, e) => {
+        if (ViewData["SearchString"] != null) {
+            string searchString = ViewData["SearchString"].ToString();
+            var criteria = new FunctionOperator(FunctionOperatorType.Contains, new OperandProperty("Text"), searchString);
+
+            var gridView = (MVCxGridView)s;
+            gridView.FilterExpression = criteria.ToString();
+        }
+    };
+}).Bind(Model).GetHtml()
